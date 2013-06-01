@@ -1,0 +1,71 @@
+<script>
+function commify(n) {
+  var reg = /(^[+-]?\d+)(\d{3})/;   // 정규식
+  n += '';                          // 숫자를 문자열로 변환
+
+  while (reg.test(n))
+    n = n.replace(reg, '$1' + ',' + '$2');
+
+  return n;
+}
+</script>
+{% for item in searchList %}
+<tr>
+  <th>
+      <img src="{{ item.thumbUrl }}"/>
+  </th>
+  <td>
+    {{item.title|safe}} - {{ item.subTitle }}
+    <hr/>
+      <div id="api_price{{ item.isbn }}"></div>
+    <hr/>
+        {% for i in item.pack %}
+          <a href="{{ i.bookUrl }}" target="_blank"> {{ i.offcode }} </a> - {{ i.price }}<br />
+        {% endfor %}
+    <hr/>
+      {{ item.author }} | {{ item.publisher }} | {{ item.publishDate }}
+    
+    <hr/>
+      <a id="{{ item.isbn }}">상세보기</a><br /><br />
+      <a href="#"><img src="https://lh3.ggpht.com/si0cgkp2rkVX5JhhBYrtZ4cy2I1hZcrx8aiz-v8MjvPykfhT7-YAM2B8MNi0OCF9AQ" width="30px" onClick="createNote('{{ item.title }}');"/></a>
+      <script>
+        $.ajax({
+        type: 'post'
+        , async: true
+        , url: 'http://apis.daum.net/search/book?apikey=dbab6c8b815d50c79ebda834abe87f97159cba5b&searchType=isbn&output=json&callback=success&q={{ item.isbn }}'
+        , dataType : 'jsonp'
+        , success: function(data) {
+            //console.log("success forward : "+data);
+            var item = data.channel.item[0].link;
+            var list_price = data.channel.item[0].list_price;
+            var sale_price = data.channel.item[0].sale_price;
+            $("#{{ item.isbn }}").attr("href", item);
+            $("#api_price{{ item.isbn }}").html("정상가 : " + commify(list_price) + "원&nbsp;&nbsp;&nbsp;할인가 : " + commify(sale_price) + "원");
+          }
+        , error: function(data, status, err) {
+            //console.log("error forward : "+data);
+          }
+        });
+      </script>
+  </td>
+</tr>
+{% endfor %}
+<script>
+function createNote(title){
+    var keyword = "1";
+    var imgurl = "1";
+    title = "twitter";
+    $.ajax({
+    type: 'get'
+    , async: true
+    , url: 'http://localhost:8000/evernote?imgurl=' + imgurl + '&title=' + encodeURI(title) + "&keyword=" + keyword
+    , success: function(data) {
+        alert("에버노트에 저장하였습니다.");
+      }
+    , error: function(data, status, err) {
+        alert(status);
+        //console.log("error forward : "+data);
+      }
+    });
+  };
+</script>

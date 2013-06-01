@@ -1,0 +1,23 @@
+<script type="text/javascript">
+  function req_search() {
+      var q = document.getElementById('id_q')
+      if (q.value.length <= 0 ) {
+          alert("please, enter keyword")
+          return false
+      } else {
+           if (q.value.indexOf(" ") == 0) {
+               alert("please,input one word")
+               return false;
+           }
+      }
+      strURL = "/search/" + q.value
+      window.location = strURL
+
+  }
+</script>
+
+  <input type="text" id="id_q" name="q" placeholder="검색" class="span11" OnKeyDown="if(event.keyCode==13) javascript:req_search('')" value="{{keyword}}">
+  <button class="btn" type="submit" onClick="javascript:req_search('')">
+    <i class="icon-big-search"></i>
+    <span class="visuallyhidden">검색</span>
+  </button>
